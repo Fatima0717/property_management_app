@@ -1,5 +1,3 @@
-# web_scraping_analysis.py
-
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -13,43 +11,34 @@ if response.status_code == 200:
     page_content = response.text
 else:
     print("Failed to fetch the page. Status code:", response.status_code)
+    exit()
 
-# Parse the HTML content
 soup = BeautifulSoup(page_content, "html.parser")
 
-# Replace 'actual-class-name' with the correct class name found from the website
-articles = soup.find_all("a", class_="actual-class-name")  
+# This will fetch all 'a' tags to see if you are getting any results
+articles = soup.find_all("a")
 
-# Extract and store the data
+print(f"Found {len(articles)} links on the page.")
+for article in articles[:10]:  # Print the first 10 links to inspect
+    print(article)
+
+# Replace 'article-link' with the actual class name you identified
+class_name = "post-title"  # Update this with the correct class name
+articles = soup.find_all("a", class_=class_name)
+
 data = []
 for article in articles:
-    title = article.text.strip()  # Extract title and remove whitespace
-    link = article["href"]  # Extract the link
-    data.append({"Title": title, "Link": link})  # Append data to the list
+    title = article.text.strip()
+    link = article.get("href")  # Use .get() to avoid KeyError if href is missing
+    if link:
+        print(f"Title: {title}, Link: {link}")  # This will display the titles and links in the terminal
+        data.append({"Title": title, "Link": link})
 
-# Convert the list to a DataFrame
-df = pd.DataFrame(data)
+# Print the scraped data to verify
+print("Scraped Data:", data)
 
-# Save the DataFrame to a CSV file
-df.to_csv('scraped_data.csv', index=False)
-print("Data saved to 'scraped_data.csv'")
+if data:
+    # Convert the list to a DataFrame
+    df = pd.DataFrame(data)
 
-# Data Analysis Section
-df = pd.read_csv('scraped_data.csv')
-
-# Print the first few rows of the DataFrame
-print(df.head())
-
-# Display information about the DataFrame
-print(df.info())
-
-# Show basic statistics
-print(df.describe())
-
-# Count unique titles
-print(df['Title'].value_counts())
-
-# Filter rows containing a specific keyword in the title
-keyword = "Honda"
-filtered_df = df[df['Title'].str.contains(keyword, case=False)]
-print(filtered_df)
+    # Save
