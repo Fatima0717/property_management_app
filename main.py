@@ -1,44 +1,43 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
+import csv
+import logging
 
-# Web Scraping Section
-url = "https://keisuke-honda.com"
-response = requests.get(url)
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-if response.status_code == 200:
-    print("Page fetched successfully!")
-    page_content = response.text
-else:
-    print("Failed to fetch the page. Status code:", response.status_code)
+# Define URL
+url = 'https://www.bbc.com/news'
+
+# Request the webpage
+try:
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an HTTPError for bad responses
+    logging.info("Successfully fetched the webpage.")
+except requests.exceptions.HTTPError as err:
+    logging.error(f"HTTP error occurred: {err}")
+    exit()
+except Exception as err:
+    logging.error(f"Other error occurred: {err}")
     exit()
 
-soup = BeautifulSoup(page_content, "html.parser")
+# Parse the page with BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
 
-# This will fetch all 'a' tags to see if you are getting any results
-articles = soup.find_all("a")
+# Scrape the headlines
+headlines = soup.find_all('h3')  # Modify this depending on the website structure
 
-print(f"Found {len(articles)} links on the page.")
-for article in articles[:10]:  # Print the first 10 links to inspect
-    print(article)
+# Save the data to a CSV file
+with open('bbc_headlines.csv', 'w', newline='') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['Headline', 'URL'])  # Write headers for CSV
 
-# Replace 'article-link' with the actual class name you identified
-class_name = "post-title"  # Update this with the correct class name
-articles = soup.find_all("a", class_=class_name)
+    for headline in headlines:
+        text = headline.text.strip()  # Clean the text
+        link = headline.find('a')['href'] if headline.find('a') else 'No link'
+        full_link = f"https://www.bbc.com{link}" if link.startswith('/') else link
+        
+        # Write to CSV
+        writer.writerow([text, full_link])
 
-data = []
-for article in articles:
-    title = article.text.strip()
-    link = article.get("href")  # Use .get() to avoid KeyError if href is missing
-    if link:
-        print(f"Title: {title}, Link: {link}")  # This will display the titles and links in the terminal
-        data.append({"Title": title, "Link": link})
-
-# Print the scraped data to verify
-print("Scraped Data:", data)
-
-if data:
-    # Convert the list to a DataFrame
-    df = pd.DataFrame(data)
-
-    # Save
+logging.info("Data successfully saved to bbc_headlines.csv.")
