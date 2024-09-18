@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BBC Headlines</title>
+</head>
+<body>
+    <h1>BBC Headlines</h1>
+    <ul>
+        {% for headline in headlines %}
+            <li><a href="{{ headline.link }}">{{ headline.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
