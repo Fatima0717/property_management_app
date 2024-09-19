@@ -1,6 +1,4 @@
-from django.shortcuts import render
-from .models import Headline
+from django.http import HttpResponse
 
 def home(request):
-    headlines = Headline.objects.all()
-    return render(request, 'home.html', {'headlines': headlines})
+    return HttpResponse("Hello, Django!")
