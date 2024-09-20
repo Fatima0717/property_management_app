@@ -2,19 +2,21 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-def fetch_data(url):
-    """Fetches data from the given URL.
+def fetch_page(url: str, user_agent: str = 'Mozilla/5.0') -> str:
+    """Fetches the HTML content of a webpage using requests.
     
     Args:
         url (str): The URL of the webpage to scrape.
+        user_agent (str): The user agent string for the request headers.
 
     Returns:
-        bytes: The content of the webpage if successful, None otherwise.
+        str: The HTML content of the webpage.
     """
+    headers = {'User-Agent': user_agent}
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raises an HTTPError for bad responses
-        return response.content
+        return response.text
     except requests.RequestException as e:
         print(f"Network error: {e}")
         return None
@@ -23,7 +25,7 @@ def parse_data(content):
     """Parses the webpage content and extracts headlines.
     
     Args:
-        content (bytes): The HTML content of the webpage.
+        content (str): The HTML content of the webpage.
 
     Returns:
         list: A list of BeautifulSoup elements containing the headlines.
@@ -55,7 +57,7 @@ def scrape_data():
     """
     print("Starting scrape...")
     url = 'https://example.com'  # Replace with the actual URL you want to scrape
-    content = fetch_data(url)
+    content = fetch_page(url)
 
     if content:
         headlines = parse_data(content)
