@@ -1,0 +1,23 @@
+<!-- properties/templates/properties/profile.html -->
+<h2>User Profile</h2>
+<p>Username: {{ profile.user.username }}</p>
+
+<h3>Favorite Properties</h3>
+<ul>
+    {% for property in favorite_properties %}
+        <li>
+            {{ property.name }} - ${{ property.price }} 
+            <a href="{% url 'remove_favorite' property.id %}">Remove</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h3>All Properties</h3>
+<ul>
+    {% for property in properties %}
+        <li>
+            {{ property.name }} - ${{ property.price }} 
+            <a href="{% url 'add_favorite' property.id %}">Add to Favorites</a>
+        </li>
+    {% endfor %}
+</ul>
